@@ -20,6 +20,7 @@ function SMAInverter(log, config) {
 	this.debug = config["debug"] || false;
 	
 	this.value = [];
+	this.value.On = false;
 	this.value.Amperes = 0;
 	this.value.KilowattHours = 0;
 	this.value.Volts = 0;
@@ -132,145 +133,126 @@ SMAInverter.prototype = {
 	_getValue: function(CharacteristicName, callback) {
 		if(this.debug) {this.log("GET", CharacteristicName);}
 		
-		// Shows as On if the device is reachable
+		// Shows as On if the device is reachable & is generating power
 		if(CharacteristicName == "On") {
 			// Login to the Inverter
-			request.post({
-				url: "http://" + this.hostname + "/dyn/login.json",
-				json: {
-					right: this.username,
-					pass: this.password
-				}
-			}, function(err, response, body) {
-				if (!err && response.statusCode == 200 && typeof body.result.sid !== 'undefined') {
-					this.sid = body.result.sid;
+			try {
+				request.post({
+					url: "http://" + this.hostname + "/dyn/login.json",
+					json: {
+						right: this.username,
+						pass: this.password
+					}
+				}, function(err, response, body) {
+					if (!err && response.statusCode == 200 && typeof body.result.sid !== 'undefined') {
+						this.sid = body.result.sid;
 					
-					// Request all of the Instantaneous Values
-					request.post({
-						url: "http://" + this.hostname + "/dyn/getAllParamValues.json?sid=" + this.sid,
-						json: {
-							destDev: []
-						}
-					}, function(err, response, body) {
-						if (!err && response.statusCode == 200) {
-							this.name = body["result"]["0156-76BC6948"]["6800_10821E00"][1][0]["val"];
-							this.firmwarerevision = "1.0.0"; // body["result"]["0156-76BC6948"]["6800_00823400"][1][0]["val"]
-							this.serialnumber = body["result"]["0156-76BC6948"]["6800_00A21E00"][1][0]["val"];
-							
-							switch(body["result"]["0156-76BC6948"]["6800_08821F00"][1][0]["val"]) {
-								case "8001" : this.manufacturer = "SMA Solar Inverters"; break;
-								default: this.manufacturer = "Unknown"; break;
+						// Request all of the Instantaneous Values
+						request.post({
+							url: "http://" + this.hostname + "/dyn/getAllParamValues.json?sid=" + this.sid,
+							json: {
+								destDev: []
 							}
-							switch(body["result"]["0156-76BC6948"]["6800_08822000"][1][0]["val"]) {
-								case "9319" : this.model = "Sunny Boy 3.0"; break;
-								case "9320" : this.model = "Sunny Boy 3.6"; break;
-								case "9321" : this.model = "Sunny Boy 4.0"; break;
-								case "9322" : this.model = "Sunny Boy 5.0"; break;
-								default: this.model = "Unknown"; break;
-							}
+						}, function(err, response, body) {
+							if (!err && response.statusCode == 200) {
+								this.name = body["result"]["0156-76BC6948"]["6800_10821E00"][1][0]["val"];
+								this.firmwarerevision = "1.0.0"; // body["result"]["0156-76BC6948"]["6800_00823400"][1][0]["val"]
+								this.serialnumber = body["result"]["0156-76BC6948"]["6800_00A21E00"][1][0]["val"];
 							
-							if(this.debug) {
-								this.log("Name: " + this.name);
-								this.log("Manufacturer: " + this.manufacturer);
-								this.log("Model: " + this.model);
-								this.log("FirmwareRevision: " + this.firmwarerevision);
-								this.log("SerialNumber: " + this.serialnumber);
-							}
-							
-							/*
-							this.informationService.getCharacteristic(Characteristic.Name).updateValue(this.name);
-							this.informationService.getCharacteristic(Characteristic.Manufacturer).updateValue(this.manufacturer);
-							this.informationService.getCharacteristic(Characteristic.Model).updateValue(this.model);
-							this.informationService.getCharacteristic(Characteristic.FirmwareRevision).updateValue(this.firmwarerevision);
-							this.informationService.getCharacteristic(Characteristic.SerialNumber).updateValue(this.serialnumber);
-							*/
-							
-							// Logout from the Inverter or else we will hit the login limit later
-							request.post({
-								url: "http://" + this.hostname + "/dyn/logout.json?sid=" + this.sid,
-								json: {}
-							}, function(err, response, body) {
-								if (!err && response.statusCode == 200) {
+								switch(body["result"]["0156-76BC6948"]["6800_08821F00"][1][0]["val"]) {
+									case "8001" : this.manufacturer = "SMA Solar Inverters"; break;
+									default: this.manufacturer = "Unknown"; break;
+								}
+								switch(body["result"]["0156-76BC6948"]["6800_08822000"][1][0]["val"]) {
+									case "9319" : this.model = "Sunny Boy 3.0"; break;
+									case "9320" : this.model = "Sunny Boy 3.6"; break;
+									case "9321" : this.model = "Sunny Boy 4.0"; break;
+									case "9322" : this.model = "Sunny Boy 5.0"; break;
+									default: this.model = "Unknown"; break;
+								}
 								
-									// Callback to HomeBridge with the result
-									callback(null, true);
+								if(this.debug) {
+									this.log("Name: " + this.name);
+									this.log("Manufacturer: " + this.manufacturer);
+									this.log("Model: " + this.model);
+									this.log("FirmwareRevision: " + this.firmwarerevision);
+									this.log("SerialNumber: " + this.serialnumber);
 								}
-								else {this.log("Unable to logout", response.statusCode, err);}
-							}.bind(this));
-						}
-						else {this.log("Unable to get device parameters", response.statusCode, err);}
-					}.bind(this));
-				}
-				else {this.log("Unable to login", response.statusCode, err);}
-			}.bind(this));
-		}
-		
-		// Shows as OutletInUse when generating power
-		else if(CharacteristicName == "OutletInUse") {
-			// Login to the Inverter
-			request.post({
-				url: "http://" + this.hostname + "/dyn/login.json",
-				json: {
-					right: this.username,
-					pass: this.password
-				}
-			}, function(err, response, body) {
-				if (!err && response.statusCode == 200 && typeof body.result.sid !== 'undefined') {
-					this.sid = body.result.sid;
-					
-					// Request all of the Instantaneous Values
-					request.post({
-						url: "http://" + this.hostname + "/dyn/getAllOnlValues.json?sid=" + this.sid,
-						json: {
-							destDev: []
-						}
-					}, function(err, response, body) {
-						if (!err && response.statusCode == 200) {
-							this.value.Amperes = (body["result"]["0156-76BC6948"]["6380_40452100"][1][0]["val"] / 1000) || 0;
-							this.value.KilowattHours = (body["result"]["0156-76BC6948"]["6400_00262200"][1][0]["val"] / 1000) || 0;
-							this.value.Volts = (body["result"]["0156-76BC6948"]["6380_40451F00"][1][0]["val"] / 100) || 0;
-							this.value.Watts = body["result"]["0156-76BC6948"]["6380_40251E00"][1][0]["val"] || 0;
-							
-							if(this.debug) {
-								this.log("Amperes: " + this.value.Amperes);
-								this.log("KilowattHours: " + this.value.KilowattHours);
-								this.log("Volts: " + this.value.Volts);
-								this.log("Watts: " + this.value.Watts);
+								
+								/*
+								this.informationService.getCharacteristic(Characteristic.Name).updateValue(this.name);
+								this.informationService.getCharacteristic(Characteristic.Manufacturer).updateValue(this.manufacturer);
+								this.informationService.getCharacteristic(Characteristic.Model).updateValue(this.model);
+								this.informationService.getCharacteristic(Characteristic.FirmwareRevision).updateValue(this.firmwarerevision);
+								this.informationService.getCharacteristic(Characteristic.SerialNumber).updateValue(this.serialnumber);
+								*/
+								
+								// Request all of the Instantaneous Values
+								request.post({
+									url: "http://" + this.hostname + "/dyn/getAllOnlValues.json?sid=" + this.sid,
+									json: {
+										destDev: []
+									}
+								}, function(err, response, body) {
+									if (!err && response.statusCode == 200) {
+										this.value.Amperes = (body["result"]["0156-76BC6948"]["6380_40452100"][1][0]["val"] / 1000) || 0;
+										this.value.KilowattHours = (body["result"]["0156-76BC6948"]["6400_00262200"][1][0]["val"] / 1000) || 0;
+										this.value.Volts = (body["result"]["0156-76BC6948"]["6380_40451F00"][1][0]["val"] / 100) || 0;
+										this.value.Watts = body["result"]["0156-76BC6948"]["6380_40251E00"][1][0]["val"] || 0;
+										
+										if(this.debug) {
+											this.log("Amperes: " + this.value.Amperes);
+											this.log("KilowattHours: " + this.value.KilowattHours);
+											this.log("Volts: " + this.value.Volts);
+											this.log("Watts: " + this.value.Watts);
+										}
+										
+										this.SMAInverter.getCharacteristic(Characteristic.CustomAmperes).updateValue(this.value.Amperes);
+										this.SMAInverter.getCharacteristic(Characteristic.CustomKilowattHours).updateValue(this.value.KilowattHours);
+										this.SMAInverter.getCharacteristic(Characteristic.CustomVolts).updateValue(this.value.Volts);
+										this.SMAInverter.getCharacteristic(Characteristic.CustomWatts).updateValue(this.value.Watts);
+										
+										// Logout from the Inverter or we will hit the login limit
+										request.post({
+											url: "http://" + this.hostname + "/dyn/logout.json?sid=" + this.sid,
+											json: {}
+										}, function(err, response, body) {
+											if (!err && response.statusCode == 200) {
+												// Callback to HomeBridge with the result
+												if(this.value.Watts > 0) {
+													this.value.On = true;
+													
+													this.SMAInverter.setCharacteristic(Characteristic.On, true);
+													this.SMAInverter.setCharacteristic(Characteristic.OutletInUse, true);
+													callback(null, true);
+												}
+												else {
+													this.value.On = false;
+													
+													this.SMAInverter.setCharacteristic(Characteristic.On, false);
+													this.SMAInverter.setCharacteristic(Characteristic.OutletInUse, false);
+													callback(null, false);
+												}
+									
+											}
+											else {this.log("Unable to logout", response.statusCode, err);}
+										}.bind(this));
+									}
+									else {this.log("Unable to get instantaneous values", response.statusCode, err);}
+								}.bind(this));
 							}
-							
-							this.SMAInverter.getCharacteristic(Characteristic.CustomAmperes).updateValue(this.value.Amperes);
-							this.SMAInverter.getCharacteristic(Characteristic.CustomKilowattHours).updateValue(this.value.KilowattHours);
-							this.SMAInverter.getCharacteristic(Characteristic.CustomVolts).updateValue(this.value.Volts);
-							this.SMAInverter.getCharacteristic(Characteristic.CustomWatts).updateValue(this.value.Watts);
-							
-							// Logout from the Inverter or we will hit the login limit
-							request.post({
-								url: "http://" + this.hostname + "/dyn/logout.json?sid=" + this.sid,
-								json: {}
-							}, function(err, response, body) {
-								if (!err && response.statusCode == 200) {
-									
-									// Callback to HomeBridge with the result
-									if(this.value.Watts > 0) {
-										this.SMAInverter.setCharacteristic(Characteristic.OutletInUse, true);
-										callback(null, true);
-									}
-									else {
-										this.SMAInverter.setCharacteristic(Characteristic.OutletInUse, false);
-										callback(null, false);
-									}
-									
-								}
-								else {this.log("Unable to logout", response.statusCode, err);}
-							}.bind(this));
-						}
-						else {this.log("Unable to get instantaneous values", response.statusCode, err);}
-					}.bind(this));
-				}
-				else {this.log("Unable to login", response.statusCode, err);}
-			}.bind(this));
+							else {this.log("Unable to get device parameters", response.statusCode, err);}
+						}.bind(this));
+					}
+					else {this.log("Unable to login", response.statusCode, err);}
+				}.bind(this));
+			}
+			catch {
+				callback(null, false);
+			}
 		}
 		
+		else if(CharacteristicName == "OutletInUse") {callback(null, this.value.On);}
 		else if(CharacteristicName == "CustomAmperes") {callback(null, this.value.Amperes);}
 		else if(CharacteristicName == "CustomKilowattHours") {callback(null, this.value.KilowattHours);}
 		else if(CharacteristicName == "CustomVolts") {callback(null, this.value.Volts);}

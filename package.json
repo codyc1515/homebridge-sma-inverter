@@ -1,21 +1,46 @@
 {
-  "name": "homebridge-sma-inverter",
-  "version": "1.0.0",
+  "_from": "homebridge-sma-inverter@latest",
+  "_id": "homebridge-sma-inverter@1.0.0",
+  "_inBundle": false,
+  "_integrity": "sha512-MmDmK2PeXwNioaoDvZZL6SZfMWIK7nEuPtJMzcAtlb4WWDvIKoSIlnaw/tURKEaZJoRrx0/EIKVqZE5YAWF/0w==",
+  "_location": "/homebridge-sma-inverter",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "homebridge-sma-inverter@latest",
+    "name": "homebridge-sma-inverter",
+    "escapedName": "homebridge-sma-inverter",
+    "rawSpec": "latest",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/homebridge-sma-inverter/-/homebridge-sma-inverter-1.0.0.tgz",
+  "_shasum": "8c12765d091453855ae9bfcdd7700a0c04bfa8a2",
+  "_spec": "homebridge-sma-inverter@latest",
+  "_where": "/usr/local/lib",
+  "author": {
+    "name": "codyc1515"
+  },
+  "bugs": {
+    "url": "https://github.com/codyc1515/homebridge-sma-inverter/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "request": "^2.81.0",
+    "utils": "^0.3.1"
+  },
+  "deprecated": false,
   "description": "HomeBridge SMA Inverter",
-  "main": "index.js",
-  "dependencies": {},
   "devDependencies": {},
   "engines": {
     "homebridge": ">=0.4.0",
     "node": ">=8.6.0"
   },
-  "dependencies": {
-    "request": "^2.81.0",
-    "utils": "^0.3.1"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "homepage": "https://github.com/codyc1515/homebridge-sma-inverter#readme",
   "keywords": [
     "homebridge-plugin",
     "homekit",
@@ -24,14 +49,15 @@
     "inverter",
     "sunny boy"
   ],
-  "author": "codyc1515",
   "license": "MIT",
+  "main": "index.js",
+  "name": "homebridge-sma-inverter",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/codyc1515/homebridge-sma-inverter.git"
   },
-  "bugs": {
-    "url": "https://github.com/codyc1515/homebridge-sma-inverter/issues"
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "homepage": "https://github.com/codyc1515/homebridge-sma-inverter#readme"
+  "version": "1.1.0"
 }
