@@ -146,23 +146,31 @@ SMAInverter.prototype = {
 
 			client.readHoldingRegisters(30057, 10, function(err, data) {this.value.SerialNumber = data.buffer.readUInt32BE();}.bind(this));
 
-			client.readHoldingRegisters(30977, 10, function(err, data) {this.SMAInverter.getCharacteristic(Characteristic.CustomAmperes).updateValue(data.buffer.readUInt32BE() / 1000);}.bind(this));
 			client.readHoldingRegisters(30775, 10, function(err, data) {
-				this.SMAInverter.getCharacteristic(Characteristic.CustomWatts).updateValue(data.buffer.readUInt32BE());
+                // Check if the value is unrealistic (the inverter is not generating)
+                if(data.buffer.readUInt32BE() > 999999) {
+                    this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(0);
+                    this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(0);
+                }
+                else {
+    				this.SMAInverter.getCharacteristic(Characteristic.CustomWatts).updateValue(data.buffer.readUInt32BE());
 
-				this.loggingService.addEntry({time: moment().unix(), power: data.buffer.readUInt32BE()});
+    				this.loggingService.addEntry({time: moment().unix(), power: data.buffer.readUInt32BE()});
 
-				if(data.buffer.readUInt32BE() > 0) {
-					this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(1);
-					this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(1);
-				}
-				else {
-					this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(0);
-					this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(0);
-				}
+    				if(data.buffer.readUInt32BE() > 0) {
+    					this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(1);
+    					this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(1);
+    				}
+    				else {
+    					this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(0);
+    					this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(0);
+    				}
+
+                    client.readHoldingRegisters(30977, 10, function(err, data) {this.SMAInverter.getCharacteristic(Characteristic.CustomAmperes).updateValue(data.buffer.readUInt32BE() / 1000);}.bind(this));
+                    client.readHoldingRegisters(30783, 10, function(err, data) {this.SMAInverter.getCharacteristic(Characteristic.CustomVolts).updateValue(data.buffer.readUInt32BE() / 100);}.bind(this));
+        			client.readHoldingRegisters(30529, 10, function(err, data) {this.SMAInverter.getCharacteristic(Characteristic.CustomKilowattHours).updateValue(data.buffer.readUInt32BE() / 1000);}.bind(this));
+                }
 			}.bind(this));
-			client.readHoldingRegisters(30783, 10, function(err, data) {this.SMAInverter.getCharacteristic(Characteristic.CustomVolts).updateValue(data.buffer.readUInt32BE() / 100);}.bind(this));
-			client.readHoldingRegisters(30529, 10, function(err, data) {this.SMAInverter.getCharacteristic(Characteristic.CustomKilowattHours).updateValue(data.buffer.readUInt32BE() / 1000);}.bind(this));
 		}.bind(this), 1000);
 
 		this.loggingService = new FakeGatoHistoryService("energy", Accessory);

@@ -1,5 +1,5 @@
 {
-  "_from": "homebridge-sma-inverter@latest",
+  "_from": "homebridge-sma-inverter",
   "_id": "homebridge-sma-inverter@1.0.0",
   "_inBundle": false,
   "_integrity": "sha512-MmDmK2PeXwNioaoDvZZL6SZfMWIK7nEuPtJMzcAtlb4WWDvIKoSIlnaw/tURKEaZJoRrx0/EIKVqZE5YAWF/0w==",
@@ -8,10 +8,10 @@
   "_requested": {
     "type": "tag",
     "registry": true,
-    "raw": "homebridge-sma-inverter@latest",
+    "raw": "homebridge-sma-inverter",
     "name": "homebridge-sma-inverter",
     "escapedName": "homebridge-sma-inverter",
-    "rawSpec": "latest",
+    "rawSpec": "",
     "saveSpec": null,
     "fetchSpec": "latest"
   },
@@ -20,8 +20,8 @@
   ],
   "_resolved": "https://registry.npmjs.org/homebridge-sma-inverter/-/homebridge-sma-inverter-1.0.0.tgz",
   "_shasum": "8c12765d091453855ae9bfcdd7700a0c04bfa8a2",
-  "_spec": "homebridge-sma-inverter@latest",
-  "_where": "/usr/local/lib",
+  "_spec": "homebridge-sma-inverter",
+  "_where": "/home/pi",
   "author": {
     "name": "codyc1515"
   },
@@ -30,7 +30,8 @@
   },
   "bundleDependencies": false,
   "dependencies": {
-    "request": "^2.81.0",
+    "fakegato-history": "^0.5.5",
+    "moment": "^2.24.0",
     "utils": "^0.3.1"
   },
   "deprecated": false,
@@ -59,5 +60,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.1.0"
+  "version": "2.0.0"
 }
