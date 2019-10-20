@@ -1,6 +1,5 @@
 {
   "_from": "homebridge-sma-inverter",
-  "_id": "homebridge-sma-inverter@1.0.0",
   "_inBundle": false,
   "_integrity": "sha512-MmDmK2PeXwNioaoDvZZL6SZfMWIK7nEuPtJMzcAtlb4WWDvIKoSIlnaw/tURKEaZJoRrx0/EIKVqZE5YAWF/0w==",
   "_location": "/homebridge-sma-inverter",
@@ -22,20 +21,18 @@
   "_shasum": "8c12765d091453855ae9bfcdd7700a0c04bfa8a2",
   "_spec": "homebridge-sma-inverter",
   "_where": "/home/pi",
-  "author": {
-    "name": "codyc1515"
-  },
+  "author": "codyc1515",
   "bugs": {
     "url": "https://github.com/codyc1515/homebridge-sma-inverter/issues"
   },
-  "bundleDependencies": false,
   "dependencies": {
     "fakegato-history": "^0.5.5",
     "moment": "^2.24.0",
-    "utils": "^0.3.1"
+    "utils": "^0.3.1",
+    "dns": "^0.0.1"
   },
   "deprecated": false,
-  "description": "HomeBridge SMA Inverter",
+  "description": "Homebridge SMA Solar Inverter",
   "devDependencies": {},
   "engines": {
     "homebridge": ">=0.4.0",
@@ -60,5 +57,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "2.0.0"
+  "version": "2.0.1"
 }

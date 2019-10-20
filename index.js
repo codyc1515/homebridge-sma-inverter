@@ -1,7 +1,8 @@
 const inherits = require("util").inherits,
-      moment = require('moment');
+      moment = require('moment'),
+      ModbusRTU = require("modbus-serial"),
+      dns = require("dns");
 
-var ModbusRTU = require("modbus-serial");
 var client = new ModbusRTU();
 
 var Service, Characteristic, Accessory, FakeGatoHistoryService;
@@ -122,56 +123,63 @@ SMAInverter.prototype = {
 		this.SMAInverter.getCharacteristic(Characteristic.CustomWatts)
 		.on('get', this._getValue.bind(this, "CustomWatts"));
 
-		// Connect to the ModBus
-		client.connectTCP(this.hostname);
-		client.setID(3);
+        // Get the hostname from dns - note: IPv4 support only for now, have not tested IPv6
+        dns.resolve(this.hostname, "A", function (err, addresses, family) {
+            // Connect to the ModBus
+            client.connectTCP(addresses[0]);
+    		client.setID(3);
 
-		setInterval(function() {
-			client.readHoldingRegisters(30051, 10, function(err, data) {
-				switch(data.buffer.readUInt32BE()) {
-					case "8001": this.value.Manufacturer = "SMA Solar Inverters"; break;
-					default: this.value.Manufacturer = "Unknown"; break;
-				}
-			}.bind(this));
+            // Obtain the values
+            setInterval(function() {
+                try {
+        			client.readHoldingRegisters(30051, 10, function(err, data) {
+        				switch(data.buffer.readUInt32BE()) {
+        					case "8001": this.value.Manufacturer = "SMA Solar Inverters"; break;
+        					default: this.value.Manufacturer = "Unknown"; break;
+        				}
+        			}.bind(this));
 
-			client.readHoldingRegisters(30053, 10, function(err, data) {
-				switch(data.buffer.readUInt32BE()) {
-					case "9319" : this.value.Model = "Sunny Boy 3.0"; break;
-					case "9320" : this.value.Model = "Sunny Boy 3.6"; break;
-					case "9321" : this.value.Model = "Sunny Boy 4.0"; break;
-					case "9322" : this.value.Model = "Sunny Boy 5.0"; break;
-					default: this.value.Model = "Unknown"; break;
-				}
-			}.bind(this));
+        			client.readHoldingRegisters(30053, 10, function(err, data) {
+        				switch(data.buffer.readUInt32BE()) {
+        					case "9319" : this.value.Model = "Sunny Boy 3.0"; break;
+        					case "9320" : this.value.Model = "Sunny Boy 3.6"; break;
+        					case "9321" : this.value.Model = "Sunny Boy 4.0"; break;
+        					case "9322" : this.value.Model = "Sunny Boy 5.0"; break;
+        					default: this.value.Model = "Unknown"; break;
+        				}
+        			}.bind(this));
 
-			client.readHoldingRegisters(30057, 10, function(err, data) {this.value.SerialNumber = data.buffer.readUInt32BE();}.bind(this));
+        			client.readHoldingRegisters(30057, 10, function(err, data) {this.value.SerialNumber = data.buffer.readUInt32BE();}.bind(this));
 
-			client.readHoldingRegisters(30775, 10, function(err, data) {
-                // Check if the value is unrealistic (the inverter is not generating)
-                if(data.buffer.readUInt32BE() > 999999) {
-                    this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(0);
-                    this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(0);
+        			client.readHoldingRegisters(30775, 10, function(err, data) {
+                        // Check if the value is unrealistic (the inverter is not generating)
+                        if(data.buffer.readUInt32BE() > 999999) {
+                            this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(0);
+                            this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(0);
+                        }
+                        else {
+            				this.SMAInverter.getCharacteristic(Characteristic.CustomWatts).updateValue(data.buffer.readUInt32BE());
+
+            				this.loggingService.addEntry({time: moment().unix(), power: data.buffer.readUInt32BE()});
+
+            				if(data.buffer.readUInt32BE() > 0) {
+            					this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(1);
+            					this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(1);
+            				}
+            				else {
+            					this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(0);
+            					this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(0);
+            				}
+
+                            client.readHoldingRegisters(30977, 10, function(err, data) {this.SMAInverter.getCharacteristic(Characteristic.CustomAmperes).updateValue(data.buffer.readUInt32BE() / 1000);}.bind(this));
+                            client.readHoldingRegisters(30783, 10, function(err, data) {this.SMAInverter.getCharacteristic(Characteristic.CustomVolts).updateValue(data.buffer.readUInt32BE() / 100);}.bind(this));
+                			client.readHoldingRegisters(30529, 10, function(err, data) {this.SMAInverter.getCharacteristic(Characteristic.CustomKilowattHours).updateValue(data.buffer.readUInt32BE() / 1000);}.bind(this));
+                        }
+        			}.bind(this));
                 }
-                else {
-    				this.SMAInverter.getCharacteristic(Characteristic.CustomWatts).updateValue(data.buffer.readUInt32BE());
-
-    				this.loggingService.addEntry({time: moment().unix(), power: data.buffer.readUInt32BE()});
-
-    				if(data.buffer.readUInt32BE() > 0) {
-    					this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(1);
-    					this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(1);
-    				}
-    				else {
-    					this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(0);
-    					this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(0);
-    				}
-
-                    client.readHoldingRegisters(30977, 10, function(err, data) {this.SMAInverter.getCharacteristic(Characteristic.CustomAmperes).updateValue(data.buffer.readUInt32BE() / 1000);}.bind(this));
-                    client.readHoldingRegisters(30783, 10, function(err, data) {this.SMAInverter.getCharacteristic(Characteristic.CustomVolts).updateValue(data.buffer.readUInt32BE() / 100);}.bind(this));
-        			client.readHoldingRegisters(30529, 10, function(err, data) {this.SMAInverter.getCharacteristic(Characteristic.CustomKilowattHours).updateValue(data.buffer.readUInt32BE() / 1000);}.bind(this));
-                }
-			}.bind(this));
-		}.bind(this), 1000);
+                catch(err) {this.log("Failed to connect to the SMA Inverter", err);}
+    		}.bind(this), 1000);
+        }.bind(this));
 
 		this.loggingService = new FakeGatoHistoryService("energy", Accessory);
 
