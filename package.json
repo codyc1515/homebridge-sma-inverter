@@ -29,7 +29,7 @@
     "fakegato-history": "^0.5.5",
     "moment": "^2.24.0",
     "utils": "^0.3.1",
-    "dns": "^0.0.1"
+    "dns": "^0.2.2"
   },
   "deprecated": false,
   "description": "Homebridge SMA Solar Inverter",
