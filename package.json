@@ -1,7 +1,8 @@
 {
   "_from": "homebridge-sma-inverter",
+  "_id": "homebridge-sma-inverter@2.0.2",
   "_inBundle": false,
-  "_integrity": "sha512-MmDmK2PeXwNioaoDvZZL6SZfMWIK7nEuPtJMzcAtlb4WWDvIKoSIlnaw/tURKEaZJoRrx0/EIKVqZE5YAWF/0w==",
+  "_integrity": "sha512-rrPUl6L9ydbb9NR/tzcyuKmsPN/DJZgRt1LVMKi5y3DoYogIjEW7jdUbc9GDKrO6c3UJyIzUaixPTkHsVG10lQ==",
   "_location": "/homebridge-sma-inverter",
   "_phantomChildren": {},
   "_requested": {
@@ -17,16 +18,18 @@
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "https://registry.npmjs.org/homebridge-sma-inverter/-/homebridge-sma-inverter-1.0.0.tgz",
-  "_shasum": "8c12765d091453855ae9bfcdd7700a0c04bfa8a2",
+  "_resolved": "https://registry.npmjs.org/homebridge-sma-inverter/-/homebridge-sma-inverter-2.0.2.tgz",
+  "_shasum": "05ac6cedb0d758aade4df770163724b609138b2f",
   "_spec": "homebridge-sma-inverter",
-  "_where": "/home/pi",
-  "author": "codyc1515",
+  "_where": "/home/homebridge",
+  "author": {
+    "name": "codyc1515"
+  },
   "bugs": {
     "url": "https://github.com/codyc1515/homebridge-sma-inverter/issues"
   },
+  "bundleDependencies": false,
   "dependencies": {
-    "dns": "^0.2.2",
     "fakegato-history": "^0.5.5",
     "modbus-serial": "^7.7.3",
     "moment": "^2.24.0",
