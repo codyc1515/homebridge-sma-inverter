@@ -20,6 +20,7 @@ module.exports = function(homebridge) {
 function SMAInverter(log, config) {
 	this.log = log;
 	this.hostname = config["hostname"];
+    this.refreshInterval = (config['refreshInterval'] * 60000) || 60000;
 	this.debug = config["debug"] || false;
 
 	this.value = [];
@@ -178,7 +179,7 @@ SMAInverter.prototype = {
         			}.bind(this));
                 }
                 catch(err) {this.log("Failed to connect to the SMA Inverter", err);}
-    		}.bind(this), 1000);
+    		}.bind(this), this.refreshInterval);
         }.bind(this));
 
 		this.loggingService = new FakeGatoHistoryService("energy", Accessory);
