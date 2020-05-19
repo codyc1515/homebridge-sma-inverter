@@ -23,23 +23,6 @@
              "minLength": 1,
              "required": true
           },
-          "username":{
-             "title":"Username",
-             "type":"string",
-             "format":"string",
-             "placeholder":"istl",
-             "description": "Default: istl",
-             "minLength": 1,
-             "required": true
-          },
-         "password":{
-            "title":"Password",
-            "type":"string",
-            "format":"password",
-            "description": "Configured during device setup",
-            "minLength": 1,
-            "required": true
-         },
          "debug":{
             "title":"Debug logging",
             "type":"boolean",
@@ -67,20 +50,6 @@
               }
           ]
        },
-      {
-         "type":"flex",
-         "flex-flow":"row wrap",
-         "items":[
-            {
-               "key":"username",
-               "type":"string"
-            },
-            {
-               "key":"password",
-               "type":"password"
-            }
-         ]
-      },
       {
          "type":"fieldset",
          "title":"Advanced configuration",
