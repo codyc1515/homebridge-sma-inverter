@@ -102,7 +102,7 @@ SMAInverter.prototype = {
 	},
 
 	_connect: function(isInitial) {
-		if(this.debug) {this.log("Connecting to the SMA Inverter (" + this.hostname + ")");}
+		if(this.debug) {this.log("Connecting:", this.hostname);}
 
 		// Get the hostname from dns - note: IPv4 support only for now, have not tested IPv6
 		try {
@@ -113,20 +113,20 @@ SMAInverter.prototype = {
 			}.bind(this));
 		}
 		catch(err) {
-			this.log("Failed to resolve DNS hostname of the SMA Inverter (maybe this is an IP address?)", err);
+			this.log("Failed to resolve DNS hostname - maybe this is an IP address?", err);
 
 			// Connect to the ModBus server IP address
 			try {client.connectTCP(this.hostname);}
-			catch(err) {throw "Could not connect using ModBus to the SMA Inverter";}
+			catch(err) {this.log("Could not connect using ModBus");}
 		}
 
 		try {
 			// Set the ModBus Id to use
 			client.setID(3);
 
-			if(this.debug) {this.log("Connected to the SMA Inverter");}
+			if(this.debug) {this.log("Connected");}
 		}
-		catch(err) {this.log("Could net set the Channel Number on the SMA Inverter");}
+		catch(err) {this.log("Could not set the Channel Number");}
 
 		// Set the automatic refresh onload only
 		if(isInitial) {
@@ -142,8 +142,6 @@ SMAInverter.prototype = {
 	},
 
 	_refresh: function() {
-		if(this.debug) {this.log("Refreshing from SMA Inverter");}
-
 		// Obtain the values
 		try {
 			client.readHoldingRegisters(30051, 10, function(err, data) {
@@ -168,6 +166,8 @@ SMAInverter.prototype = {
 			client.readHoldingRegisters(30775, 10, function(err, data) {
 				// Check if the value is unrealistic (the inverter is not generating)
 				if(data.buffer.readUInt32BE() > 999999) {
+					if(this.debug) {this.log("Updating status", "Active", "Off (value is irregular)");}
+
 					this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(0);
 					this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(0);
 				}
@@ -177,10 +177,14 @@ SMAInverter.prototype = {
 					this.loggingService.addEntry({time: moment().unix(), power: data.buffer.readUInt32BE()});
 
 					if(data.buffer.readUInt32BE() > 0) {
+						if(this.debug) {this.log("Updating status", "Active", "On");}
+
 						this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(1);
 						this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(1);
 					}
 					else {
+						if(this.debug) {this.log("Updating status", "Active", "Off");}
+
 						this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(0);
 						this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(0);
 					}
@@ -192,7 +196,7 @@ SMAInverter.prototype = {
 			}.bind(this));
 		}
 		catch(err) {
-			this.log("Failed to connect to the SMA Inverter, attempting to reconnect...", err);
+			this.log("Refresh failed", "Attempting reconnect...", err);
 
 			// Attempt to reconnect
 			this._connect();
