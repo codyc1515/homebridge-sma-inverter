@@ -166,7 +166,7 @@ SMAInverter.prototype = {
 			client.readHoldingRegisters(30775, 10, function(err, data) {
 				// Check if the value is unrealistic (the inverter is not generating)
 				if(data.buffer.readUInt32BE() > 999999) {
-					if(this.debug) {this.log("Updating status", "Active", "Off (value is irregular)");}
+					if(this.debug) {this.log("Updating status", "Active", "Off (high value)");}
 
 					this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(0);
 					this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(0);
@@ -183,7 +183,7 @@ SMAInverter.prototype = {
 						this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(1);
 					}
 					else {
-						if(this.debug) {this.log("Updating status", "Active", "Off");}
+						if(this.debug) {this.log("Updating status", "Active", "Off (low value)");}
 
 						this.SMAInverter.getCharacteristic(Characteristic.On).updateValue(0);
 						this.SMAInverter.getCharacteristic(Characteristic.OutletInUse).updateValue(0);
