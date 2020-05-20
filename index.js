@@ -25,10 +25,10 @@ function SMAInverter(log, config) {
 
 	this.value = [];
 	this.value.Name = config["name"] || '';
-	this.value.Manufacturer = 'SMA Solar Inverters';
-	this.value.Model = 'Sunny Boy';
-	this.value.FirmwareRevision = '1.0.0';
-	this.value.SerialNumber = '123456';
+	this.value.Manufacturer = "";
+	this.value.Model = "";
+	this.value.FirmwareRevision = "1.0.0";
+	this.value.SerialNumber = "";
 
 	Characteristic.CustomAmperes = function() {
 		Characteristic.call(this, 'Amperes', 'E863F126-079E-48FF-8F27-9C2605A29F52');
@@ -146,7 +146,7 @@ SMAInverter.prototype = {
 		try {
 			client.readHoldingRegisters(30051, 10, function(err, data) {
 				switch(data.buffer.readUInt32BE()) {
-					case "8001": this.value.Manufacturer = "SMA Solar Inverters"; break;
+					case "8001": this.value.Manufacturer = "SMA Solar Inverter"; break;
 					default: this.value.Manufacturer = "Unknown"; break;
 				}
 			}.bind(this));
@@ -157,7 +157,7 @@ SMAInverter.prototype = {
 					case "9320" : this.value.Model = "Sunny Boy 3.6"; break;
 					case "9321" : this.value.Model = "Sunny Boy 4.0"; break;
 					case "9322" : this.value.Model = "Sunny Boy 5.0"; break;
-					default: this.value.Model = "Unknown"; break;
+					default: this.value.Model = "Sunny Boy Unknown"; break;
 				}
 			}.bind(this));
 
