@@ -164,11 +164,14 @@ SMAInverter.prototype = {
 
 			// Currently - Light Sensor
 			client.readHoldingRegisters(30775, 10, function(err, data) {
-				this.lightSensorCurrently.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(data.buffer.readUInt32BE() / 1000);
-
 				// Check if the value is unrealistic (the inverter is not generating)
-				if(data.buffer.readUInt32BE() > 999999 && this.debug) {this.log("Device status", "Off - high value");}
+				if(data.buffer.readUInt32BE() > 99999) {
+					if(this.debug) {this.log("Device status", "Off - high value");}
+					this.lightSensorCurrently.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(0);
+				}
 				else {
+					this.lightSensorCurrently.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(data.buffer.readUInt32BE() / 1000);
+
 					// Eve - Watts
 					this.lightSensorCurrently.getCharacteristic(Characteristic.CustomWatts).updateValue(data.buffer.readUInt32BE());
 					this.loggingService.addEntry({time: moment().unix(), power: data.buffer.readUInt32BE()});
