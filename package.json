@@ -1,27 +1,27 @@
 {
-  "_from": "homebridge-sma-inverter@latest",
-  "_id": "homebridge-sma-inverter@2.1.0",
+  "_from": "homebridge-sma-inverter@2.2.2",
+  "_id": "homebridge-sma-inverter@2.2.2",
   "_inBundle": false,
-  "_integrity": "sha512-gHW06gq+GkA1KwCTRzIAUN3sNK36dFH5oWt5Z61ciabwMm+E4KOeE1oL1Bv0NtzMin4w6PK3fUW8nznpcIKvVw==",
+  "_integrity": "sha512-6DXgVGFW8IywX2u190kgSxD0Hb/1qEexyrH+S0d2lJyugi5AA51G1uOgMV8g5uwnWxKDgocrRbdJ7tQhqntOeg==",
   "_location": "/homebridge-sma-inverter",
   "_phantomChildren": {},
   "_requested": {
-    "type": "tag",
+    "type": "version",
     "registry": true,
-    "raw": "homebridge-sma-inverter@latest",
+    "raw": "homebridge-sma-inverter@2.2.2",
     "name": "homebridge-sma-inverter",
     "escapedName": "homebridge-sma-inverter",
-    "rawSpec": "latest",
+    "rawSpec": "2.2.2",
     "saveSpec": null,
-    "fetchSpec": "latest"
+    "fetchSpec": "2.2.2"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "https://registry.npmjs.org/homebridge-sma-inverter/-/homebridge-sma-inverter-2.1.0.tgz",
-  "_shasum": "8ec4da58c83a57b370175355c6397536cadaa1f3",
-  "_spec": "homebridge-sma-inverter@latest",
-  "_where": "/usr/local/lib",
+  "_resolved": "https://registry.npmjs.org/homebridge-sma-inverter/-/homebridge-sma-inverter-2.2.2.tgz",
+  "_shasum": "bc73b1f8f2e6d74f41321ada09d44ef5263160c7",
+  "_spec": "homebridge-sma-inverter@2.2.2",
+  "_where": "/usr/local",
   "author": {
     "name": "codyc1515"
   },
@@ -61,5 +61,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "2.2.2"
+  "version": "3.0.0"
 }
