@@ -41,7 +41,7 @@ function SMAInverter(log, config) {
 			minStep: 0.01,
 			perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
 		});
-		this.value = this.getDefaultValue();
+		this.value = 0;
 	};
 	inherits(Characteristic.CustomAmperes, Characteristic);
 	Characteristic.CustomAmperes.UUID = 'E863F126-079E-48FF-8F27-9C2605A29F52';
@@ -56,7 +56,7 @@ function SMAInverter(log, config) {
 			minStep: 0.001,
 			perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
 		});
-		this.value = this.getDefaultValue();
+		this.value = 0;
 	};
 	inherits(Characteristic.CustomKilowattHours, Characteristic);
 	Characteristic.CustomKilowattHours.UUID = 'E863F10C-079E-48FF-8F27-9C2605A29F52';
@@ -71,7 +71,7 @@ function SMAInverter(log, config) {
 			minStep: 0.1,
 			perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
 		});
-		this.value = this.getDefaultValue();
+		this.value = 0;
 	};
 	inherits(Characteristic.CustomVolts, Characteristic);
 	Characteristic.CustomVolts.UUID = 'E863F10A-079E-48FF-8F27-9C2605A29F52';
@@ -86,7 +86,7 @@ function SMAInverter(log, config) {
 			minStep: 0.1,
 			perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
 		});
-		this.value = this.getDefaultValue();
+		this.value = 0;
 	};
 	inherits(Characteristic.CustomWatts, Characteristic);
 	Characteristic.CustomWatts.UUID = 'E863F10D-079E-48FF-8F27-9C2605A29F52';
@@ -165,11 +165,7 @@ SMAInverter.prototype = {
 			// Currently - Light Sensor
 			client.readHoldingRegisters(30775, 10, function(err, data) {
 				// Check if the value is unrealistic (the inverter is not generating)
-				if(data.buffer.readUInt32BE() > 99999) {
-					if(this.debug) {this.log("Device status", "Off - high value");}
-					this.lightSensorCurrently.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(0);
-				}
-				else {
+				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= 65535 && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
 					this.lightSensorCurrently.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(data.buffer.readUInt32BE() / 1000);
 
 					// Eve - Watts
@@ -179,27 +175,39 @@ SMAInverter.prototype = {
 					if(this.debug && data.buffer.readUInt32BE() > 0) {this.log("Device status", "On");}
 					else if (this.debug) {this.log("Device status", "Off - low value");}
 				}
+				else {
+					if(this.debug) {this.log("Device status", "Off - unreasonable value");}
+					this.lightSensorCurrently.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(0.0001);
+				}
 			}.bind(this));
 
 			// Today - Light Sensor
 			client.readHoldingRegisters(30535, 10, function(err, data) {
-				this.lightSensorToday.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(data.buffer.readUInt32BE() / 1000);
+				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= 65535 && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
+					this.lightSensorToday.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(data.buffer.readUInt32BE() / 1000);
+				}
 			}.bind(this));
 
 			// All Time - Light Sensor
 			client.readHoldingRegisters(30529, 10, function(err, data) {
-				this.lightSensorCurrently.getCharacteristic(Characteristic.CustomKilowattHours).updateValue(data.buffer.readUInt32BE() / 1000);
-				this.lightSensorTotal.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(data.buffer.readUInt32BE() / 1000);
+				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= 65535 && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
+					this.lightSensorCurrently.getCharacteristic(Characteristic.CustomKilowattHours).updateValue(data.buffer.readUInt32BE() / 1000);
+					this.lightSensorTotal.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(data.buffer.readUInt32BE() / 1000);
+				}
 			}.bind(this));
 
 			// Amperes - FakeGato
 			client.readHoldingRegisters(30977, 10, function(err, data) {
-				this.lightSensorCurrently.getCharacteristic(Characteristic.CustomAmperes).updateValue(data.buffer.readUInt32BE() / 1000);
+				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= 65535 && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
+					this.lightSensorCurrently.getCharacteristic(Characteristic.CustomAmperes).updateValue(data.buffer.readUInt32BE() / 1000);
+				}
 			}.bind(this));
 
 			// Volts - FakeGato
 			client.readHoldingRegisters(30783, 10, function(err, data) {
-				this.lightSensorCurrently.getCharacteristic(Characteristic.CustomVolts).updateValue(data.buffer.readUInt32BE() / 100);
+				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= 65535 && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
+					this.lightSensorCurrently.getCharacteristic(Characteristic.CustomVolts).updateValue(data.buffer.readUInt32BE() / 100);
+				}
 			}.bind(this));
 		}
 		catch(err) {
@@ -215,42 +223,58 @@ SMAInverter.prototype = {
 
 		this.lightSensorCurrently = new Service.LightSensor(this.name + " Currently", "currently");
 		this.lightSensorCurrently.getCharacteristic(Characteristic.CurrentAmbientLightLevel)
-		.setProps({
-			unit: "kWh"
-		})
-		.on('get',this._getValue.bind(this, "Currently"));
+			.setProps({
+				unit: "kWh",
+				minValue: 0,
+				maxValue: 100000,
+				minStep: 0.0001
+			})
+			.on('get',this._getValue.bind(this, "Currently"));
+		this.lightSensorCurrently.setCharacteristic(Characteristic.CurrentAmbientLightLevel, 0);
 
 		this.lightSensorCurrently.addCharacteristic(Characteristic.CustomAmperes);
 		this.lightSensorCurrently.getCharacteristic(Characteristic.CustomAmperes)
-		.on('get', this._getValue.bind(this, "CustomAmperes"));
+			.on('get', this._getValue.bind(this, "CustomAmperes"));
+		this.lightSensorCurrently.setCharacteristic(Characteristic.CustomAmperes, 0);
 
 		this.lightSensorCurrently.addCharacteristic(Characteristic.CustomKilowattHours);
 		this.lightSensorCurrently.getCharacteristic(Characteristic.CustomKilowattHours)
-		.on('get', this._getValue.bind(this, "CustomKilowattHours"));
+			.on('get', this._getValue.bind(this, "CustomKilowattHours"));
+		this.lightSensorCurrently.setCharacteristic(Characteristic.CustomKilowattHours, 0);
 
 		this.lightSensorCurrently.addCharacteristic(Characteristic.CustomVolts);
 		this.lightSensorCurrently.getCharacteristic(Characteristic.CustomVolts)
-		.on('get', this._getValue.bind(this, "CustomVolts"));
+			.on('get', this._getValue.bind(this, "CustomVolts"));
+		this.lightSensorCurrently.setCharacteristic(Characteristic.CustomVolts, 0);
 
 		this.lightSensorCurrently.addCharacteristic(Characteristic.CustomWatts);
 		this.lightSensorCurrently.getCharacteristic(Characteristic.CustomWatts)
-		.on('get', this._getValue.bind(this, "CustomWatts"));
+			.on('get', this._getValue.bind(this, "CustomWatts"));
+		this.lightSensorCurrently.setCharacteristic(Characteristic.CustomWatts, 0);
 
 
 		this.lightSensorToday = new Service.LightSensor(this.name + " Today", "today");
 		this.lightSensorToday.getCharacteristic(Characteristic.CurrentAmbientLightLevel)
-		.setProps({
-			unit: "kWh"
-		})
-		.on('get',this._getValue.bind(this, "Today"));
+			.setProps({
+				unit: "kWh",
+				minValue: 0,
+				maxValue: 100000,
+				minStep: 0.0001
+			})
+			.on('get',this._getValue.bind(this, "Today"));
+		this.lightSensorToday.setCharacteristic(Characteristic.CurrentAmbientLightLevel, 0);
 
 
 		this.lightSensorTotal = new Service.LightSensor(this.name + " Total", "total");
 		this.lightSensorTotal.getCharacteristic(Characteristic.CurrentAmbientLightLevel)
-		.setProps({
-			unit: "kWh"
-		})
-		.on('get',this._getValue.bind(this, "Total"));
+			.setProps({
+				unit: "kWh",
+				minValue: 0,
+				maxValue: 100000,
+				minStep: 0.0001
+			})
+			.on('get',this._getValue.bind(this, "Total"));
+		this.lightSensorTotal.setCharacteristic(Characteristic.CurrentAmbientLightLevel, 0);
 
 
 		this.loggingService = new FakeGatoHistoryService("energy", Accessory);
