@@ -165,7 +165,7 @@ SMAInverter.prototype = {
 			// Currently - Light Sensor
 			client.readHoldingRegisters(30775, 10, function(err, data) {
 				// Check if the value is unrealistic (the inverter is not generating)
-				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= 65535 && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
+				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= (65535*1000) && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
 					this.lightSensorCurrently.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(data.buffer.readUInt32BE() / 1000);
 
 					// Eve - Watts
@@ -183,14 +183,14 @@ SMAInverter.prototype = {
 
 			// Today - Light Sensor
 			client.readHoldingRegisters(30535, 10, function(err, data) {
-				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= 65535 && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
+				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= (65535*1000) && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
 					this.lightSensorToday.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(data.buffer.readUInt32BE() / 1000);
 				}
 			}.bind(this));
 
 			// All Time - Light Sensor
 			client.readHoldingRegisters(30529, 10, function(err, data) {
-				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= 65535 && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
+				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= (65535*1000) && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
 					this.lightSensorCurrently.getCharacteristic(Characteristic.CustomKilowattHours).updateValue(data.buffer.readUInt32BE() / 1000);
 					this.lightSensorTotal.getCharacteristic(Characteristic.CurrentAmbientLightLevel).updateValue(data.buffer.readUInt32BE() / 1000);
 				}
@@ -198,14 +198,14 @@ SMAInverter.prototype = {
 
 			// Amperes - FakeGato
 			client.readHoldingRegisters(30977, 10, function(err, data) {
-				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= 65535 && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
+				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= (65535*1000) && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
 					this.lightSensorCurrently.getCharacteristic(Characteristic.CustomAmperes).updateValue(data.buffer.readUInt32BE() / 1000);
 				}
 			}.bind(this));
 
 			// Volts - FakeGato
 			client.readHoldingRegisters(30783, 10, function(err, data) {
-				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= 65535 && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
+				if(data.buffer.readUInt32BE() > 0 && data.buffer.readUInt32BE() <= (65535*100) && typeof data.buffer.readUInt32BE() == 'number' && Number.isFinite(data.buffer.readUInt32BE())) {
 					this.lightSensorCurrently.getCharacteristic(Characteristic.CustomVolts).updateValue(data.buffer.readUInt32BE() / 100);
 				}
 			}.bind(this));
