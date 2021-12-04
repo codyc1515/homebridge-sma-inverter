@@ -1,6 +1,5 @@
 {
   "_from": "homebridge-sma-inverter@2.2.2",
-  "_id": "homebridge-sma-inverter@2.2.2",
   "_inBundle": false,
   "_integrity": "sha512-6DXgVGFW8IywX2u190kgSxD0Hb/1qEexyrH+S0d2lJyugi5AA51G1uOgMV8g5uwnWxKDgocrRbdJ7tQhqntOeg==",
   "_location": "/homebridge-sma-inverter",
@@ -61,5 +60,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "3.2.1"
+  "version": "3.3.0"
 }
