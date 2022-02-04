@@ -34,7 +34,7 @@ sudo npm install -g homebridge-sma-inverter
 # Credit
 1. [codyc1515](https://github.com/codyc1515) for the creation and development of the plug-in.
 2. [tritter](https://github.com/tritter) for updating dependencies.
-3. [mitch7391](https://github.com/mitch7391) for creating a README.
+3. [mitch7391](https://github.com/mitch7391) for creating a README, CHANGELOG and ISSUE templates.
 
 # License
 This plugin is distributed under the MIT license. See [LICENSE](https://github.com/codyc1515/homebridge-sma-inverter/blob/master/LICENSE) for details.
