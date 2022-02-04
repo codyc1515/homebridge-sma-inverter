@@ -1,6 +1,14 @@
 <p align="center">
 <img src="https://github.com/homebridge/branding/raw/master/logos/homebridge-wordmark-logo-vertical.png" width="150">
+<img src="Screenshots/SMA_Logo.svg.png" width="200">
 </p>
+
+<span align="center">
+  
+[![npm](https://badgen.net/npm/v/homebridge-sma-inverter/latest?icon=npm&label)](https://www.npmjs.com/package/homebridge-sma-inverter)
+[![npm](https://badgen.net/npm/dt/homebridge-sma-inverter?label=downloads)](https://www.npmjs.com/package/homebridge-sma-inverter)
+  
+</span>
 
 # homebridge-sma-inverter
 Homebridge plugin to display readings from ModBus enabled SMA Solar Inverters.
