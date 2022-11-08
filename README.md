@@ -10,6 +10,9 @@
   
 </span>
 
+# Update
+HomeKit does not support non-traditional smart home devices, like Inverters, very well. I have started using Home Assistant for my SMA Inverter, so am ending support for this plug-in.
+
 # homebridge-sma-inverter
 Homebridge plugin to display readings from ModBus enabled SMA Solar Inverters.
 
